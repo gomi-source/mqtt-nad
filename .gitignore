@@ -1,0 +1,4 @@
+/mqtt-nad
+*.exe
+*.test
+*.out

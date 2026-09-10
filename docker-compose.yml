@@ -1,0 +1,22 @@
+# Convenience stack for local testing: a mosquitto broker plus mqtt-nad
+# wired up to talk to it. Not required in production, where mqtt-nad
+# connects to whatever broker MQTT_BROKER_URL points at.
+#
+#   docker compose up --build
+#   mosquitto_pub -h localhost -t tele/m33/raw -m $'Main.Volume=-3\r\n'
+#   mosquitto_sub -h localhost -t 'tele/m33/#' -v
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    ports:
+      - "1883:1883"
+    command: >
+      sh -c "echo 'listener 1883\nallow_anonymous true' > /mosquitto/config/mosquitto.conf
+      && /docker-entrypoint.sh mosquitto -c /mosquitto/config/mosquitto.conf"
+
+  mqtt-nad:
+    build: .
+    depends_on:
+      - mosquitto
+    environment:
+      MQTT_BROKER_URL: tcp://mosquitto:1883
