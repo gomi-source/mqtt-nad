@@ -14,9 +14,6 @@ relayed as-is over MQTT by an existing serial<->MQTT bridge. This
 service does not talk to the serial port itself - it only translates
 between that raw format and granular topics.
 
-The existing bridge, that is wired to the RS232 port and translates
-raw commands from/to MQTT is a Waveshare RS323/485/422 to RJ45 device.
-
 ## Supported metrics
 
 This mirrors the metrics the existing NAD amplifier integration
@@ -64,10 +61,11 @@ protocol:
 The M33 reports `Main.Source=9` both when the active source is its
 BluOS streaming module and when it's actually set to HDMI/ARC
 passthrough - the amp's RS-232 interface can't tell the two apart on
-its own. A previous integration resolved this with an extra HTTP call
-to the amp's BluOS API (`GET http://<amp-host>:<port>/Status`, checking
-whether `<inputTypeIndex>` equals `arc-1`) and republished an overridden
-value (`99`) when that was the case.
+its own. The previous NAD integration (`p-nad-v1`) resolved this with
+an extra HTTP call to the amp's BluOS API (`GET
+http://<amp-host>:<port>/Status`, checking whether `<inputTypeIndex>`
+equals `arc-1`) and republished an overridden value (`99`) when that
+was the case.
 
 This bridge deliberately does not do that: it only translates the
 RS-232 wire protocol over MQTT and has no HTTP dependency on the
@@ -126,3 +124,21 @@ go test ./...
 `nad/protocol_test.go` covers parsing and command formatting, including
 the exact wire quirks (mixed `<CR>`/`<LF>` framing, the `Main.Balance`
 `-3L`/`-3R` encoding, unknown/unpublished variables).
+
+## CI/CD
+
+`.github/workflows/ci.yml` runs `go vet`, `gofmt -l`, and `go test` on
+every push and pull request to `main`. Pushing a semver tag (e.g. `git
+tag 1.0.0 && git push --tags`) additionally builds a multi-arch
+(`linux/amd64`, `linux/arm64`) image and pushes it to Docker Hub as
+`<DOCKERHUB_USERNAME>/mqtt-nad:<tag>` and `:latest`.
+
+That last step needs `DOCKERHUB_USERNAME` (variable) and
+`DOCKERHUB_TOKEN` (secret - a Docker Hub access token, not your account
+password: hub.docker.com -> Account Settings -> Security -> New Access
+Token) set under a GitHub **Environment** named `prd` (Settings ->
+Environments -> `prd`), not as plain repo secrets/variables - that's
+what lets the same credentials be reused across other workflows/repos
+that also target the `prd` environment. The `push-image` job declares
+`environment: prd` to pick them up; without that, they'd resolve empty
+and the Docker Hub login step would fail.
