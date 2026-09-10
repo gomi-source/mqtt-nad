@@ -1,5 +1,8 @@
 # --- build stage ---
-FROM golang:1.23-alpine AS build
+# go.mod requires >= 1.24.0 (a transitive requirement from
+# paho.mqtt.golang v1.5.1's own go.mod), so the build image must be at
+# least that new.
+FROM golang:1.24-alpine AS build
 WORKDIR /src
 
 COPY go.mod go.sum ./
