@@ -16,9 +16,8 @@ between that raw format and granular topics.
 
 ## Supported metrics
 
-This mirrors the metrics the existing NAD amplifier integration
-(`p-nad-v1`) already exposes. A metric not in this list is not
-published from telemetry, and a command for it is rejected:
+A metric not in this list is not published from telemetry, and a
+command for it is rejected:
 
 | metric           | wire variable        |
 |------------------|-----------------------|
@@ -61,21 +60,20 @@ protocol:
 The M33 reports `Main.Source=9` both when the active source is its
 BluOS streaming module and when it's actually set to HDMI/ARC
 passthrough - the amp's RS-232 interface can't tell the two apart on
-its own. The previous NAD integration (`p-nad-v1`) resolved this with
-an extra HTTP call to the amp's BluOS API (`GET
-http://<amp-host>:<port>/Status`, checking whether `<inputTypeIndex>`
-equals `arc-1`) and republished an overridden value (`99`) when that
-was the case.
+its own. The ambiguity can be resolved with an extra HTTP call to the
+amp's BluOS API (`GET http://<amp-host>:<port>/Status`, checking
+whether `<inputTypeIndex>` equals `arc-1`) and republish an overridden
+value when that is the case.
 
-This bridge deliberately does not do that: it only translates the
+_This bridge deliberately does not do that:_ it only translates the
 RS-232 wire protocol over MQTT and has no HTTP dependency on the
 amplifier's BluOS side. If you need to tell BluOS and HDMI/ARC apart,
 do the same `/Status` check from whatever consumes `tele/m33/source`
 when you see a value of `9`. For what it's worth, BluOS's own
 capture-source listing (`GET .../RadioBrowse?service=Capture`)
 identifies this same HDMI/ARC capture input as id `0` - worth using as
-your override value instead of the old integration's arbitrary `99`,
-if you want it to line up with that convention.
+your override value for source, if you want it to line up with that
+convention.
 
 ## Configuration
 
