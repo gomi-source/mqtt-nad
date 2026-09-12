@@ -39,9 +39,9 @@ same wire-format value (e.g. `-3L`) to `cmd/m33/balance`.
 
 Anything else on the raw telemetry topic (per-source detail like
 `Source1.Input`, the `Main.Sources` count, or any future/unknown
-variable) is logged but intentionally not fanned out to a topic,
-matching the existing integration. Extending the supported metric set
-is a one-line addition to the map in `nad/protocol.go`.
+variable) is logged but intentionally not fanned out to a topic.
+Extending the supported metric set is a one-line addition to the
+map in `nad/protocol.go`.
 
 ### Commands
 
