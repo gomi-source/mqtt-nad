@@ -12,7 +12,13 @@ cmd/m33/{metric}  --(format)-->  cmd/m33/raw
 RS-232 wire format (see `RS-232 Protocol for NAD Products v2.02`),
 relayed as-is over MQTT by an existing serial<->MQTT bridge. This
 service does not talk to the serial port itself - it only translates
-between that raw format and granular topics.
+between that raw format and granular topics. 
+
+## Requirements
+- An MQTT broker, e.g. [mosquitto](https://hub.docker.com/_/eclipse-mosquitto).
+- A serial<->MQTT bridge device. The one used for this project was a
+Waveshare RS232 to RJ45 (PoE) device, connected to the amplifier's
+RS232-port and to ethernet LAN, and then configured for MQTT.
 
 ## Supported metrics
 
